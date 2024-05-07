@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en-us">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Archivo:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">  
+    <title>The Reckoner</title>
+    <style>
+      #reckonerForm {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
+
+      #reckonerInput {
+        width: 80%;
+      }
+
+      h1 {
+        font-size: 48pt;
+      }
+
+      .archivo-title {
+        font-family: "Archivo", sans-serif;
+        font-optical-sizing: auto;
+        font-weight: 700;
+        font-style: normal;
+        font-variation-settings:
+          "wdth" 100;
+      }
+
+      .archivo-form {
+        font-family: "Archivo", sans-serif;
+        font-optical-sizing: auto;
+        font-weight: 400;
+        font-style: normal;
+        font-variation-settings:
+          "wdth" 100;
+      }
+
+    </style>
+  </head>
+  <body>
+    <form id="reckonerForm">
+      <h1 class="archivo-title">The Reckoner</h1>
+      <input id="reckonerInput" name="reckonerInput" />
+      <button id="reckonButton">Reckon</button>
+      <p id="result"></p>
+    </form>
+    {{{ SCRIPT }}}
+    <script>
+      const button = document.getElementById('reckonButton');
+      const textInput = document.getElementById('reckonerInput');
+      const resultField = document.getElementById('result');
+      
+      function handleButtonClick(e) {
+        e.preventDefault();
+
+        const inputValue = textInput.value;
+
+        const result = Module.ccall('reckon', 'number', ['string'], [inputValue]);
+
+        resultField.innerText = result;
+      }
+
+      button.addEventListener('click', handleButtonClick);
+    </script>
+  </body>
+</html>
