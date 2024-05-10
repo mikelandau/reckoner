@@ -23,36 +23,6 @@ int main()
     return 0;
 }
 
-void printExpressionTree(std::shared_ptr<ExpressionTreeNode> root, int level) 
-{
-    for (int i = 0; i < level; ++i) 
-    {
-        std::cout << " ";
-    }
-    if (root == NULL) 
-    {
-        std::cout << "NULL" << std::endl;
-        return;
-    }
-    auto nodeType = root->getNodeType();
-    if (nodeType == NodeType::NumericValue) 
-    {
-        auto numericValueNode = std::dynamic_pointer_cast<NumericValueNode>(root);
-        std::cout << numericValueNode->value << std::endl;
-    }
-    else if (nodeType == NodeType::Operator)
-    {
-        auto operatorNode = std::dynamic_pointer_cast<OperatorNode>(root);
-        std::cout << operatorNode->displayName << std::endl;
-        printExpressionTree(operatorNode->leftOperand, level + 1);
-        printExpressionTree(operatorNode->rightOperand, level + 1);
-    }
-    else 
-    {
-        std::cout << "???" << std::endl;
-    }
-}
-
 std::shared_ptr<ExpressionTreeNode> getRoot(std::shared_ptr<ExpressionTreeNode> node)
 {
     std::shared_ptr root = node;
@@ -166,8 +136,6 @@ std::shared_ptr<ExpressionTreeNode> makeExpressionTree(std::string input)
     currentTokenType = Token::Operator;
 
     auto root = getRoot(currentNode);
-    std::cout << std::endl <<  "FINAL TREE" << std::endl;
-    printExpressionTree(root, 0);
 
     return root;
 }
@@ -177,20 +145,11 @@ extern "C" EMSCRIPTEN_KEEPALIVE double reckon(const char* cstr_input, char* tree
     std::string input (cstr_input);
     input.erase(remove_if(input.begin(), input.end(), isspace), input.end());
 
-    std::cout << "reckoning " << input << std::endl;
     std::shared_ptr<ExpressionTreeNode> expressionTree;
-    try 
-    {
-        expressionTree = makeExpressionTree(input);
-    } 
-    catch (std::exception &e) 
-    {
-        std::cerr << "Exception: " << e.what() << std::endl;
-    }
+
+    expressionTree = makeExpressionTree(input);
     
     auto result = expressionTree->calculate();
-
-    std::cout << "Result: " << result << std::endl;
 
     auto tree = expressionTree->serializeToJson(0);
 

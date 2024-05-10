@@ -16,10 +16,10 @@ std::string OperatorNode::serializeToJson(int level)
     std::stringstream ss;
 
     ss << "{" << std::endl;
-    ss << tabs << "\"type\": \"Operator\"," << std::endl;
-    ss << tabs << "\"value\": \"" << displayName << "\"" << std::endl;
-    ss << tabs << "\"leftOperand\": " << leftOperand->serializeToJson(level + 1) << "," << std::endl;
-    ss << tabs << "\"rightOperand\": " << rightOperand->serializeToJson(level + 1) << std::endl;
+    ss << tabs << "\t\"type\": \"Operator\"," << std::endl;
+    ss << tabs << "\t\"value\": \"" << displayName << "\"" << std::endl;
+    ss << tabs << "\t\"leftOperand\": " << leftOperand->serializeToJson(level + 1) << "," << std::endl;
+    ss << tabs << "\t\"rightOperand\": " << rightOperand->serializeToJson(level + 1) << std::endl;
     ss << tabs << "}";
 
     return ss.str();

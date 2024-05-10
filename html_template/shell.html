@@ -21,6 +21,10 @@
       h1 {
         font-size: 48pt;
       }
+      
+      p {
+        font-size: 24pt;
+      }
 
       .archivo-title {
         font-family: "Archivo", sans-serif;
@@ -47,7 +51,7 @@
       <h1 class="archivo-title">The Reckoner</h1>
       <input id="reckonerInput" name="reckonerInput" />
       <button id="reckonButton">Reckon</button>
-      <p id="result"></p>
+      <p class="archivo-title" id="result"></p>
       <pre id="expressionTree"></p>
     </form>
     {{{ SCRIPT }}}
@@ -66,7 +70,7 @@
 
         const response = Module.ccall('reckon', null, ['string', 'number'], [inputValue, treePtr]);
 
-        resultField.innerText = response;
+        resultField.innerText = `I reckon the answer is: ${response}`;
 
         const tree = Module.UTF8ToString(treePtr);
 

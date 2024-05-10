@@ -16,8 +16,8 @@ std::string NumericValueNode::serializeToJson(int level)
     std::stringstream ss;
     
     ss << "{" << std::endl;
-    ss << tabs << "\"type\": \"NumericValue\"," << std::endl;
-    ss << tabs << "\"value\": \"" << value << "\"" << std::endl;
+    ss << tabs << "\t\"type\": \"NumericValue\"," << std::endl;
+    ss << tabs << "\t\"value\": \"" << value << "\"" << std::endl;
     ss << tabs << "}";
 
     return ss.str();
