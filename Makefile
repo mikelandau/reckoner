@@ -8,7 +8,7 @@ SHELL_FILE = html_template/shell.html
 
 SHELL_FILE_ARG = --shell-file $(SHELL_FILE)
 
-COMPILER_FLAGS = -s NO_EXIT_RUNTIME=1 -s "EXPORTED_RUNTIME_METHODS=['ccall']"
+COMPILER_FLAGS = -s NO_EXIT_RUNTIME=1 -s "EXPORTED_RUNTIME_METHODS=['allocateUTF8', 'ccall', 'UTF8ToString']" 
 
 #OBJ_NAME specifies the name of our exectuable
 OBJ_NAME = bin/reckoner.html

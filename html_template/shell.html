@@ -48,21 +48,29 @@
       <input id="reckonerInput" name="reckonerInput" />
       <button id="reckonButton">Reckon</button>
       <p id="result"></p>
+      <pre id="expressionTree"></p>
     </form>
     {{{ SCRIPT }}}
     <script>
       const button = document.getElementById('reckonButton');
       const textInput = document.getElementById('reckonerInput');
       const resultField = document.getElementById('result');
+      const treeField = document.getElementById('expressionTree');
       
       function handleButtonClick(e) {
         e.preventDefault();
 
         const inputValue = textInput.value;
 
-        const result = Module.ccall('reckon', 'number', ['string'], [inputValue]);
+        const treePtr = Module.allocateUTF8(' '.repeat(10000));
 
-        resultField.innerText = result;
+        const response = Module.ccall('reckon', null, ['string', 'number'], [inputValue, treePtr]);
+
+        resultField.innerText = response;
+
+        const tree = Module.UTF8ToString(treePtr);
+
+        treeField.innerText = tree;
       }
 
       button.addEventListener('click', handleButtonClick);
