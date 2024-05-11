@@ -71,14 +71,47 @@ std::shared_ptr<ExpressionTreeNode> makeExpressionTree(std::string input)
 
     std::cout << "Making tree for: " << input << std::endl;
 
+    bool builderEmpty = true;
+
     for (int i = 0; i < input.length(); ++i) 
     {
-        if (currentTokenType == Token::Operand && !isdigit(input[i]) && !(input[i] == '.')) {
+        if (builderEmpty && currentTokenType == Token::Operand && input[i] == '(') 
+        {
+            int openParen = i;
+            std::cout << "open: " << openParen << std::endl;
+            // skip open parenthesis
+            ++i;
+            // skip over other characters within parentheses, parse it recursively
+            for (int nestingLevel = 1; nestingLevel > 0; ++i) 
+            {
+                if (input[i] == '(') ++nestingLevel;
+                if (input[i] == ')') --nestingLevel;
+            }
+            int closeParen = i;
+            std::cout << "close: " << closeParen;
+
+            std::string parenTerm = input.substr(openParen + 1, closeParen - openParen - 2);
+            auto parenTree = makeExpressionTree(parenTerm);
+            if (currentNode != NULL)
+            {
+                auto operatorNode = std::dynamic_pointer_cast<OperatorNode>(currentNode);
+                parenTree->parent = operatorNode;
+                operatorNode->rightOperand = parenTree;
+            }
+            currentNode = parenTree;
+            currentTokenType = Token::Operator;
+            if (i == input.length())
+                break;
+        }
+        else if (currentTokenType == Token::Operand && !isdigit(input[i]) && !(input[i] == '.')) 
+        {
             auto numericNode = std::make_shared<NumericValueNode>();
             auto currentToken = currentTokenBuilder.str();
             numericNode->value = stod(currentToken);
             currentTokenBuilder.str("");
             currentTokenBuilder.clear();
+            builderEmpty = true;
+
             if (currentNode != NULL)
             {
                 auto operatorNode = std::dynamic_pointer_cast<OperatorNode>(currentNode);
@@ -94,6 +127,7 @@ std::shared_ptr<ExpressionTreeNode> makeExpressionTree(std::string input)
             auto operatorNode = createOperatorNode(currentToken);
             currentTokenBuilder.str("");
             currentTokenBuilder.clear();
+            builderEmpty = true;
             
             if (currentNode->parent == NULL)
             {
@@ -123,6 +157,7 @@ std::shared_ptr<ExpressionTreeNode> makeExpressionTree(std::string input)
             currentTokenType = Token::Operand;
         }
         currentTokenBuilder << input[i];
+        builderEmpty = false;
     }
     auto numericNode = std::make_shared<NumericValueNode>();
     numericNode->value = stod(currentTokenBuilder.str());
