@@ -79,6 +79,7 @@
           if (e.name && e.name.includes("SyntaxError")) {
             resultField.innerText = 'I reckon you have a syntax error';
           } else {
+            console.error(e);
             resultField.innerText = 'I reckon you broke it';
           }
         }

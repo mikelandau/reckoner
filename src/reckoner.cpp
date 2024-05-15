@@ -189,14 +189,25 @@ bool isOperatorType(TokenType type)
 
 bool isStringNumeric (std::string s)
 {
-    int dotCount = 0;
-    for (auto &c : s)
+    if (s.empty() || s == "-") 
     {
+        return false;
+    }
+
+    int dotCount = 0;
+
+    for (int i = 0; i < s.length(); ++i)
+    {
+        char c = s.at(i);
+        if (i == 0 && c == '-') {
+            continue;
+        }
+
         if (c == '.' && dotCount == 0) 
         {
             ++dotCount;
         }
-        if (!isdigit(c))
+        else if (!isdigit(c))
         {
             return false;
         }
