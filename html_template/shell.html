@@ -44,15 +44,76 @@
           "wdth" 100;
       }
 
+      #expressionTree {
+        display:none;
+      }
+      
+      .displayControls {
+        display: none;
+        flex-direction: row;
+      }
+
+      .inputControls {
+        display: flex;
+        flex-direction: row;
+        width: 80%;
+      }
+
+      .leftSpace {
+        margin-left: 20px;
+      }
+
+      #reckonButton {
+        background-color: #000ad2;
+        border: none;
+        color: white;
+        padding: 15px 32px;
+        text-align: center;
+        text-decoration: none;
+        font-size: 16pt;
+      }
+
+      #reckonerInput {
+        font-size: 16pt;
+      }
+      
+      #instructionsTitle {
+        font-size: 24pt;
+      }
+
+      #instructionsList {
+        font-size: 16pt;
+        text-align: center;
+        list-style: none;
+        line-height: 48px;
+      }
+
     </style>
   </head>
   <body>
     <form id="reckonerForm">
       <h1 class="archivo-title">The Reckoner</h1>
-      <input id="reckonerInput" name="reckonerInput" />
-      <button id="reckonButton">Reckon</button>
+      <div class="inputControls">
+        <input id="reckonerInput" name="reckonerInput" class="archivo-form" />
+        <button id="reckonButton" class="archivo-title">Reckon</button>
+      </div>
       <p class="archivo-title" id="result"></p>
-      <pre id="expressionTree"></p>
+      <div id="instructions">
+        <div class="archivo-title" id="instructionsTitle">Try entering an arithmetic expression, such as:</div>
+        <ul class="archivo-form" id="instructionsList">
+          <li>3+4</li>
+          <li>(1+2)*(3+4)</li>
+          <li>16^(1/2)</li>
+        </ul>
+      </div>
+      <div class="displayControls" id="displayControls">
+        <input id="graphicalDisplayButton" type="radio" name="displayControl" value="graphical" checked />
+        <span class="archivo-form">Graphical Display</span>
+        <input id="jsonDisplayButton" type="radio" name="displayControl" value="json" class="leftSpace" />
+        <span class="archivo-form">JSON Display</span>
+      </div>
+      <pre id="expressionTree"></pre>
+      <canvas id="treeCanvas" width="800" height="600"></canvas>
     </form>
     {{{ SCRIPT }}}
     <script>
@@ -60,6 +121,25 @@
       const textInput = document.getElementById('reckonerInput');
       const resultField = document.getElementById('result');
       const treeField = document.getElementById('expressionTree');
+      const treeCanvas = document.getElementById('treeCanvas');
+      const instructions = document.getElementById('instructions');
+      const displayControls = document.getElementById('displayControls');
+
+      const ctx = treeCanvas.getContext('2d');
+
+      const graphicalDisplayButton = document.getElementById('graphicalDisplayButton');
+      const jsonDisplayButton = document.getElementById('jsonDisplayButton');
+
+      function radioChangeEvent(e) {
+        const value = e.target.value;
+        if (value === 'graphical') {
+          treeCanvas.style.display = 'block';
+          treeField.style.display = 'none';
+        } else if (value === 'json') {
+          treeCanvas.style.display = 'none';
+          treeField.style.display = 'block';
+        }
+      }
       
       function handleButtonClick(e) {
         e.preventDefault();
@@ -70,11 +150,17 @@
 
         treeField.innerText = '';
 
+        instructions.style.display = 'none';
+        displayControls.style.display = 'flex';
+
         try {
           const response = Module.ccall('reckon', null, ['string', 'number'], [inputValue, treePtr]);
           resultField.innerText = `I reckon the answer is: ${response}`;
-          const tree = Module.UTF8ToString(treePtr);
-          treeField.innerText = tree;
+          const treeJson = Module.UTF8ToString(treePtr);
+          treeField.innerText = treeJson;
+          const tree = JSON.parse(treeJson);
+          clearCanvas();
+          drawTree(tree, 40, 40, 0);
         } catch (e) {
           if (e.name && e.name.includes("SyntaxError")) {
             resultField.innerText = 'I reckon you have a syntax error';
@@ -82,10 +168,94 @@
             console.error(e);
             resultField.innerText = 'I reckon you broke it';
           }
+          clearCanvas();
+          treeField.innerText = '';
         }
       }
 
+      function clearCanvas() {
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(0, 0, treeCanvas.width, treeCanvas.height);
+      }
+
+      const nodeColors = [
+        '#ffb3ba',
+        '#ffdfba',
+        '#ffffba',
+        '#baffc9',
+        '#bae1ff'
+      ]
+
+      function getLevelColor(level) {
+        return nodeColors[level % nodeColors.length];
+      }
+
+      function drawTree(root, startX, startY, level) {
+        let delX = 0;
+        const value = root.type === 'ParentheticalTerm' ? '()' : root.value;
+        const color = getLevelColor(level);
+        drawNode(value, startX, startY, color)
+        let hasChildren = false;
+        if (root.leftOperand) {
+          drawConnectingLine(startX, startY + 30, startX + delX, startY + 50);
+          delX += drawTree(root.leftOperand, startX + delX, startY + 80, level + 1);
+          hasChildren = true;
+        }
+        if (root.rightOperand) {
+          drawConnectingLine(startX, startY + 30, startX + delX, startY + 50);
+          delX += drawTree(root.rightOperand, startX + delX, startY + 80, level + 1);
+          hasChildren = true;
+        }
+        if (root.subtreeRoot) {
+          drawConnectingLine(startX, startY + 30, startX + delX, startY + 50);
+          delX += drawTree(root.subtreeRoot, startX + delX, startY + 80, level + 1);
+          hasChildren = true;
+        }
+
+        return hasChildren ? delX : delX + 80;
+      }
+
+      function drawConnectingLine(startX, startY, endX, endY) {
+        ctx.beginPath();
+        ctx.moveTo(startX, startY);
+        ctx.lineTo(endX, endY);
+        ctx.stroke();
+      }
+
+      function drawNode(value, x, y, color) {
+        ctx.beginPath();
+        ctx.arc(x, y, 30, 0, 2 * Math.PI);
+        ctx.fillStyle = color;
+        ctx.fill();
+
+        switch(value.length)
+        {
+          case 1:
+            ctx.font = '42px Archivo';
+            break;
+          case 2:
+            ctx.font = '36px Archivo';
+            break;
+          case 3:
+            ctx.font = '30px Archivo';
+            break;
+          case 4:
+            ctx.font = '24px Archivo';
+            break;
+          default:
+            ctx.font = '18px Archivo';
+            break;
+        }
+
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillStyle = '#000000';
+        ctx.fillText(value, x, y);
+      }
+
       button.addEventListener('click', handleButtonClick);
+      graphicalDisplayButton.addEventListener('change', radioChangeEvent);
+      jsonDisplayButton.addEventListener('change', radioChangeEvent);
     </script>
   </body>
 </html>

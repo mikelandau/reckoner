@@ -25,6 +25,10 @@ extern "C" EMSCRIPTEN_KEEPALIVE double reckon(const char* cstr_input, char* tree
 
 std::shared_ptr<ExpressionTreeNode> buildExpressionTree(std::string input)
 {
+    if (input.empty())
+    {
+        throw SyntaxError("Expression cannot be empty");
+    }
     int tokenStart = 0;
     NodeCategory lastAddedNodeCategory = NodeCategory::Operator;
     
