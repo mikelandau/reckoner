@@ -17,7 +17,7 @@ std::string OperatorNode::serializeToJson(int level)
 
     ss << "{" << std::endl;
     ss << tabs << "\t\"type\": \"Operator\"," << std::endl;
-    ss << tabs << "\t\"value\": \"" << displayName << "\"" << std::endl;
+    ss << tabs << "\t\"value\": \"" << displayName << "\"," << std::endl;
     ss << tabs << "\t\"leftOperand\": " << leftOperand->serializeToJson(level + 1) << "," << std::endl;
     ss << tabs << "\t\"rightOperand\": " << rightOperand->serializeToJson(level + 1) << std::endl;
     ss << tabs << "}";

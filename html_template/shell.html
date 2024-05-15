@@ -68,13 +68,20 @@
 
         const treePtr = Module.allocateUTF8(' '.repeat(10000));
 
-        const response = Module.ccall('reckon', null, ['string', 'number'], [inputValue, treePtr]);
+        treeField.innerText = '';
 
-        resultField.innerText = `I reckon the answer is: ${response}`;
-
-        const tree = Module.UTF8ToString(treePtr);
-
-        treeField.innerText = tree;
+        try {
+          const response = Module.ccall('reckon', null, ['string', 'number'], [inputValue, treePtr]);
+          resultField.innerText = `I reckon the answer is: ${response}`;
+          const tree = Module.UTF8ToString(treePtr);
+          treeField.innerText = tree;
+        } catch (e) {
+          if (e.name && e.name.includes("SyntaxError")) {
+            resultField.innerText = 'I reckon you have a syntax error';
+          } else {
+            resultField.innerText = 'I reckon you broke it';
+          }
+        }
       }
 
       button.addEventListener('click', handleButtonClick);
