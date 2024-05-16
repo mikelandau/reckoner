@@ -39,8 +39,6 @@ std::shared_ptr<ExpressionTreeNode> buildExpressionTree(std::string input)
         std::string token = input.substr(tokenStart, i);
         TokenType tokenType = determineTokenType(token, lastAddedNodeCategory);
 
-        std::cout << "building: " << token << std::endl;
-
         bool lastLoopIteration = i + tokenStart == input.length();
 
         if (lastLoopIteration && tokenType == TokenType::Undefined)
@@ -57,7 +55,6 @@ std::shared_ptr<ExpressionTreeNode> buildExpressionTree(std::string input)
 
         if (tokenType != TokenType::Undefined && lookAheadTokenType == TokenType::Undefined)
         {
-            std::cout << "found token: " << token << std::endl;
             if (tokenType == TokenType::NumericValue) 
             {
                 auto numericValueNode = createNumericValueNodeFromToken(token);
