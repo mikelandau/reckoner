@@ -38,12 +38,12 @@ void ExpressionTreeBuilder::insertOperator(std::shared_ptr<OperatorNode> node)
         _lastAddedNode->parent = node;
         node->leftOperand = _lastAddedNode;
     }
-    else 
+    else
     {
         auto newNodeParent = std::dynamic_pointer_cast<OperatorNode>(_lastAddedNode->parent);
-        while (newNodeParent->parent != NULL && newNodeParent->precidence >= node->precidence) 
+        while (newNodeParent->parent != NULL && newNodeParent->precidence >= node->precidence)
         {
-            newNodeParent = std::dynamic_pointer_cast<OperatorNode>(newNodeParent);
+            newNodeParent = std::dynamic_pointer_cast<OperatorNode>(newNodeParent->parent);
         }
 
         if (newNodeParent->parent == NULL && newNodeParent->precidence >= node->precidence)
